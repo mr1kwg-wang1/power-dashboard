@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단양공장 전력사용량 대시보드</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --bg:#14181c; --panel:#1c2228; --panel2:#20262d;
+    --line:#2b333b; --text:#e7ebee; --muted:#8a95a1;
+    --accent:#e08a3c; --accent2:#4c8daa; --ok:#5fa876; --warn:#c9564a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Pretendard","Malgun Gothic",-apple-system,sans-serif;
+    line-height:1.5;
+  }
+  header{
+    padding:28px 32px 20px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;
+  }
+  header h1{margin:0; font-size:22px; font-weight:700; letter-spacing:-0.3px;}
+  header .sub{color:var(--muted); font-size:13px; margin-top:4px;}
+  header .updated{font-size:12px; color:var(--muted); text-align:right;}
+  main{padding:24px 32px 60px; max-width:1180px; margin:0 auto;}
+  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:28px;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .kpi .label{font-size:12px; color:var(--muted); margin-bottom:6px;}
+  .kpi .value{font-size:24px; font-weight:700;}
+  .kpi .delta{font-size:12px; margin-top:4px;}
+  .delta.up{color:var(--warn);} .delta.down{color:var(--ok);}
+  section{margin-bottom:32px;}
+  section h2{font-size:15px; font-weight:700; margin:0 0 12px; color:var(--text); border-left:3px solid var(--accent); padding-left:10px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr;}}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px;}
+  .chart-wrap{position:relative; height:280px;}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th,td{padding:8px 10px; text-align:right; border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left; color:var(--muted);}
+  th{color:var(--muted); font-weight:600; font-size:12px;}
+  tr:last-child td{border-bottom:none;}
+  .badge{display:inline-block; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle;}
+  .badge.est{background:#3a3020; color:#d9a24a;}
+  .badge.file{background:#1f3a2c; color:#5fa876;}
+  footer{padding:20px 32px; color:var(--muted); font-size:12px; border-top:1px solid var(--line);}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin-bottom:8px;}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>단양공장 전력사용량 대시보드</h1>
+    <div class="sub">Sungshin Cement · Danyang Plant · Power Usage Monitor</div>
+  </div>
+  <div class="updated" id="updatedAt">데이터 로딩 중...</div>
+</header>
+
+<main>
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <section>
+    <h2>월별 원단위 추이 (kWh/t)</h2>
+    <div class="card">
+      <div class="chart-wrap"><canvas id="unitChart" role="img" aria-label="월별 총 원단위 추이"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="grid2">
+      <div class="card">
+        <h2 style="margin-top:0">공정별 원단위 추이</h2>
+        <div class="chart-wrap"><canvas id="processChart" role="img" aria-label="공정별 원단위 추이"></canvas></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">전력단가 추이 (원/kWh)</h2>
+        <div class="chart-wrap"><canvas id="rateChart" role="img" aria-label="전력단가 추이"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>월별 상세 데이터</h2>
+    <div class="card" style="overflow-x:auto;">
+      <table id="detailTable"></table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  성신양회 단양공장 비상계획관실 · 전력월보 기반 자동 집계 · data.json 갱신 시 자동 반영됩니다.
+</footer>
+
+<script>
+const PROC_LABELS = {OR:"기준 O/R", RM:"R/M(원료분쇄)", COM:"COM(석탄분쇄)", KL:"K/L(소성)", CM:"C/M(시멘트분쇄)"};
+const PROC_COLORS = {OR:"#8a95a1", RM:"#e08a3c", COM:"#c9564a", KL:"#4c8daa", CM:"#5fa876"};
+
+fetch('data.json?_=' + Date.now())
+  .then(r => r.json())
+  .then(data => render(data.months))
+  .catch(err => {
+    document.getElementById('updatedAt').textContent = '데이터를 불러오지 못했습니다: ' + err;
+  });
+
+function fmt(n, d=0){ return n==null ? '-' : Number(n).toLocaleString('ko-KR', {maximumFractionDigits:d, minimumFractionDigits:d}); }
+function monthLabel(m){ const [y,mo]=m.split('-'); return `${parseInt(mo)}월`; }
+
+function render(months){
+  months.sort((a,b)=>a.month.localeCompare(b.month));
+  const labels = months.map(m=>monthLabel(m.month));
+  document.getElementById('updatedAt').textContent = `최신 데이터: ${months[months.length-1].month} · 총 ${months.length}개월 누적`;
+
+  const last = months[months.length-1];
+  const prev = months.length>1 ? months[months.length-2] : null;
+  const kpis = [
+    {label:'총 원단위 (kWh/t)', val: last.total.unit_kwh_t, prevVal: prev?.total.unit_kwh_t, decimals:2, lowerBetter:true},
+    {label:'총 사용량 (kWh)', val: last.total.usage_kwh, prevVal: prev?.total.usage_kwh, decimals:0, lowerBetter:null},
+    {label:'전력단가 (원/kWh)', val: last.rate.unit_price_won_per_kwh, prevVal: prev?.rate.unit_price_won_per_kwh, decimals:2, lowerBetter:true},
+    {label:'PEAK 전력 (kW)', val: last.rate.peak_mid_kw, prevVal: prev?.rate.peak_mid_kw, decimals:0, lowerBetter:true},
+  ];
+  const kpiRow = document.getElementById('kpiRow');
+  kpiRow.innerHTML = kpis.map(k=>{
+    let deltaHtml = '';
+    if(k.prevVal!=null && k.val!=null){
+      const diff = k.val - k.prevVal;
+      const pct = (diff/k.prevVal*100);
+      const isUp = diff > 0;
+      const cls = k.lowerBetter==null ? '' : (isUp === k.lowerBetter ? 'up' : 'down');
+      deltaHtml = `<div class="delta ${cls}">${isUp?'▲':'▼'} ${fmt(Math.abs(pct),1)}% 전월대비</div>`;
+    }
+    return `<div class="kpi"><div class="label">${k.label}</div><div class="value">${fmt(k.val,k.decimals)}</div>${deltaHtml}</div>`;
+  }).join('');
+
+  new Chart(document.getElementById('unitChart'), {
+    type:'line',
+    data:{ labels, datasets:[{
+      label:'총 원단위', data: months.map(m=>m.total.unit_kwh_t),
+      borderColor:'#e08a3c', backgroundColor:'rgba(224,138,60,0.12)',
+      borderWidth:2, pointRadius:5, pointBackgroundColor:'#e08a3c', fill:true, tension:0.25
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ y:{ grid:{color:'#2b333b'}, ticks:{color:'#8a95a1'} }, x:{ grid:{display:false}, ticks:{color:'#8a95a1'} } }
+    }
+  });
+
+  const procKeys = Object.keys(PROC_LABELS);
+  new Chart(document.getElementById('processChart'), {
+    type:'line',
+    data:{ labels, datasets: procKeys.map(k=>({
+      label: PROC_LABELS[k], data: months.map(m=>m.processes[k]?.unit_kwh_t ?? null),
+      borderColor: PROC_COLORS[k], backgroundColor:'transparent', borderWidth:2, pointRadius:3, tension:0.25
+    }))},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{color:'#8a95a1', boxWidth:10, font:{size:11}} } },
+      scales:{ y:{ grid:{color:'#2b333b'}, ticks:{color:'#8a95a1'} }, x:{ grid:{display:false}, ticks:{color:'#8a95a1'} } }
+    }
+  });
+
+  new Chart(document.getElementById('rateChart'), {
+    type:'bar',
+    data:{ labels, datasets:[{
+      label:'전력단가(원/kWh)', data: months.map(m=>m.rate.unit_price_won_per_kwh),
+      backgroundColor:'#4c8daa', borderRadius:4, maxBarThickness:36
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ y:{ grid:{color:'#2b333b'}, ticks:{color:'#8a95a1'} }, x:{ grid:{display:false}, ticks:{color:'#8a95a1'} } }
+    }
+  });
+
+  const table = document.getElementById('detailTable');
+  const head = `<tr><th>월</th><th>총사용량(kWh)</th><th>총원단위(kWh/t)</th><th>R/M</th><th>COM</th><th>K/L</th><th>C/M</th><th>전력단가(원/kWh)</th></tr>`;
+  const rows = months.map(m=>{
+    const badge = m.source==='file' ? '<span class="badge file">원본</span>' : '<span class="badge est">추정</span>';
+    return `<tr>
+      <td style="text-align:left">${m.month}${badge}</td>
+      <td>${fmt(m.total.usage_kwh)}</td>
+      <td>${fmt(m.total.unit_kwh_t,2)}</td>
+      <td>${fmt(m.processes.RM?.unit_kwh_t,2)}</td>
+      <td>${fmt(m.processes.COM?.unit_kwh_t,2)}</td>
+      <td>${fmt(m.processes.KL?.unit_kwh_t,2)}</td>
+      <td>${fmt(m.processes.CM?.unit_kwh_t,2)}</td>
+      <td>${fmt(m.rate.unit_price_won_per_kwh,2)}</td>
+    </tr>`;
+  }).join('');
+  table.innerHTML = head + rows;
+}
+</script>
+</body>
+</html>
