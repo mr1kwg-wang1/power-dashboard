@@ -71,6 +71,20 @@
   </section>
 
   <section>
+    <h2>월별 총 사용량 비교 (kWh)</h2>
+    <div class="card">
+      <div class="chart-wrap"><canvas id="usageChart" role="img" aria-label="월별 총 사용량 비교"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>공정별 사용량 비교 (kWh)</h2>
+    <div class="card">
+      <div class="chart-wrap"><canvas id="processUsageChart" role="img" aria-label="공정별 사용량 비교"></canvas></div>
+    </div>
+  </section>
+
+  <section>
     <div class="grid2">
       <div class="card">
         <h2 style="margin-top:0">공정별 원단위 추이</h2>
@@ -149,6 +163,33 @@ function render(months){
   });
 
   const procKeys = Object.keys(PROC_LABELS);
+  const procKeysUsage = Object.keys(PROC_LABELS);
+  new Chart(document.getElementById('usageChart'), {
+    type:'bar',
+    data:{ labels, datasets:[{
+      label:'총 사용량(kWh)', data: months.map(m=>m.total.usage_kwh),
+      backgroundColor:'#4c8daa', borderRadius:4, maxBarThickness:40
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label: ctx => '사용량: ' + Number(ctx.parsed.y).toLocaleString('ko-KR') + ' kWh' } } },
+      scales:{ y:{ grid:{color:'#2b333b'}, ticks:{color:'#8a95a1', callback:v=>Number(v).toLocaleString('ko-KR')} }, x:{ grid:{display:false}, ticks:{color:'#8a95a1'} } }
+    }
+  });
+
+  new Chart(document.getElementById('processUsageChart'), {
+    type:'bar',
+    data:{ labels, datasets: procKeysUsage.map(k=>({
+      label: PROC_LABELS[k], data: months.map(m=>m.processes[k]?.usage_kwh ?? null),
+      backgroundColor: PROC_COLORS[k], borderRadius:3, maxBarThickness:22
+    }))},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{color:'#8a95a1', boxWidth:10, font:{size:11}} },
+        tooltip:{ callbacks:{ label: ctx => ctx.dataset.label + ': ' + Number(ctx.parsed.y).toLocaleString('ko-KR') + ' kWh' } } },
+      scales:{ y:{ grid:{color:'#2b333b'}, ticks:{color:'#8a95a1', callback:v=>Number(v).toLocaleString('ko-KR')} }, x:{ grid:{display:false}, ticks:{color:'#8a95a1'} } }
+    }
+  });
+
   new Chart(document.getElementById('processChart'), {
     type:'line',
     data:{ labels, datasets: procKeys.map(k=>({
@@ -174,12 +215,24 @@ function render(months){
   });
 
   const table = document.getElementById('detailTable');
-  const head = `<tr><th>월</th><th>총사용량(kWh)</th><th>총원단위(kWh/t)</th><th>R/M</th><th>COM</th><th>K/L</th><th>C/M</th><th>전력단가(원/kWh)</th></tr>`;
-  const rows = months.map(m=>{
+  const head = `<tr><th>월</th><th>총사용량(kWh)</th><th>전월대비</th><th>총원단위(kWh/t)</th><th>R/M</th><th>COM</th><th>K/L</th><th>C/M</th><th>전력단가(원/kWh)</th></tr>`;
+  const rows = months.map((m, idx)=>{
     const badge = m.source==='file' ? '<span class="badge file">원본</span>' : '<span class="badge est">추정</span>';
+    let deltaCell = '<td>-</td>';
+    if (idx > 0) {
+      const prevUsage = months[idx-1].total.usage_kwh;
+      const curUsage = m.total.usage_kwh;
+      if (prevUsage != null && curUsage != null) {
+        const pct = (curUsage - prevUsage) / prevUsage * 100;
+        const cls = pct > 0 ? 'up' : 'down';
+        const arrow = pct > 0 ? '▲' : '▼';
+        deltaCell = `<td class="delta ${cls}" style="text-align:right">${arrow} ${fmt(Math.abs(pct),1)}%</td>`;
+      }
+    }
     return `<tr>
       <td style="text-align:left">${m.month}${badge}</td>
       <td>${fmt(m.total.usage_kwh)}</td>
+      ${deltaCell}
       <td>${fmt(m.total.unit_kwh_t,2)}</td>
       <td>${fmt(m.processes.RM?.unit_kwh_t,2)}</td>
       <td>${fmt(m.processes.COM?.unit_kwh_t,2)}</td>
