@@ -31,6 +31,12 @@
   .kpi .value{font-size:24px; font-weight:700;}
   .kpi .delta{font-size:12px; margin-top:4px;}
   .delta.up{color:var(--warn);} .delta.down{color:var(--ok);}
+  #insightBanner{margin:-10px 0 24px;}
+  .insight-card{background:linear-gradient(135deg,#2a2118,#1c2228); border:1px solid #4a3a22; border-left:3px solid var(--accent); border-radius:10px; padding:14px 18px; font-size:13px; display:flex; gap:10px; align-items:flex-start;}
+  .insight-card .icon{font-size:16px;}
+  .insight-card .body b{color:var(--accent);}
+  .note-box{margin-top:6px; font-size:12px; color:var(--muted); background:#20262d; border-left:2px solid var(--accent2); padding:6px 10px; border-radius:4px;}
+  .note-box b{color:var(--accent2);}
   section{margin-bottom:32px;}
   section h2{font-size:15px; font-weight:700; margin:0 0 12px; color:var(--text); border-left:3px solid var(--accent); padding-left:10px;}
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
@@ -62,6 +68,7 @@
 
 <main>
   <div class="kpi-row" id="kpiRow"></div>
+  <div id="insightBanner"></div>
 
   <section>
     <h2>월별 원단위 추이 (kWh/t)</h2>
@@ -130,6 +137,33 @@ function render(months){
 
   const last = months[months.length-1];
   const prev = months.length>1 ? months[months.length-2] : null;
+
+  // ---- 인사이트 자동 감지: 전월대비 변동폭이 가장 큰 공정 ----
+  const insightEl = document.getElementById('insightBanner');
+  if (prev) {
+    let maxKey = null, maxPct = 0, maxDir = '';
+    Object.keys(PROC_LABELS).forEach(k=>{
+      const cur = last.processes[k]?.unit_kwh_t;
+      const pv = prev.processes[k]?.unit_kwh_t;
+      if (cur!=null && pv!=null && pv!==0) {
+        const pct = (cur-pv)/pv*100;
+        if (Math.abs(pct) > Math.abs(maxPct)) { maxPct = pct; maxKey = k; maxDir = pct>0?'상승':'하락'; }
+      }
+    });
+    let html = '';
+    if (maxKey) {
+      html += `<div class="insight-card"><span class="icon">⚠️</span><div class="body">
+        <b>이번 달 주목 변화</b> — ${PROC_LABELS[maxKey]} 원단위가 전월대비 <b>${maxDir} ${Math.abs(maxPct).toFixed(1)}%</b>로 4개 공정 중 가장 크게 변동했습니다.
+        (자동 감지: 원인은 데이터만으로 알 수 없어 아래 메모를 참고하세요)
+      </div></div>`;
+    }
+    if (last.note) {
+      html += `<div class="note-box">📝 <b>${last.month} 실무자 메모:</b> ${last.note}</div>`;
+    }
+    insightEl.innerHTML = html;
+  }
+  // ---- 인사이트 로직 끝 ----
+
   const kpis = [
     {label:'총 원단위 (kWh/t)', val: last.total.unit_kwh_t, prevVal: prev?.total.unit_kwh_t, decimals:2, lowerBetter:true},
     {label:'총 사용량 (kWh)', val: last.total.usage_kwh, prevVal: prev?.total.usage_kwh, decimals:0, lowerBetter:null},
