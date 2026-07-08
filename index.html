@@ -142,7 +142,8 @@ function render(months){
   const insightEl = document.getElementById('insightBanner');
   if (prev) {
     let maxKey = null, maxPct = 0, maxDir = '';
-    Object.keys(PROC_LABELS).forEach(k=>{
+    const CORE_PROCESS_KEYS = ['RM','COM','KL','CM']; // 기준 O/R은 절대값이 작아 %변동이 왜곡되므로 제외
+    CORE_PROCESS_KEYS.forEach(k=>{
       const cur = last.processes[k]?.unit_kwh_t;
       const pv = prev.processes[k]?.unit_kwh_t;
       if (cur!=null && pv!=null && pv!==0) {
