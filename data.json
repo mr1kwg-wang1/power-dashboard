@@ -2,134 +2,134 @@
   "months": [
     {
       "month": "2026-03",
-      "source": "image_estimate",
-      "file_name": "screenshot",
+      "source": "file",
+      "file_name": "전력월보_2026-03.xlsx",
       "processes": {
         "OR": {
-          "usage_kwh": 1496838,
+          "usage_kwh": 1496838.0,
           "unit_kwh_t": 3.0
         },
         "RM": {
-          "usage_kwh": 12231079,
+          "usage_kwh": 12231079.0,
           "unit_kwh_t": 26.17
         },
         "COM": {
-          "usage_kwh": 1281842,
+          "usage_kwh": 1281842.0,
           "unit_kwh_t": 2.76
         },
         "KL": {
-          "usage_kwh": 14672665,
+          "usage_kwh": 14672665.0,
           "unit_kwh_t": 31.55
         },
         "CM": {
-          "usage_kwh": 21271592,
+          "usage_kwh": 21271592.0,
           "unit_kwh_t": 39.65
         }
       },
       "usage_subtotal": {
-        "usage_kwh": 51361026,
+        "usage_kwh": 51361026.0,
         "unit_kwh_t": 103.93
       },
       "total": {
-        "usage_kwh": 53084213,
+        "usage_kwh": 53084213.0,
         "unit_kwh_t": 107.42
       },
       "rate": {
-        "usage_fee_won": null,
-        "base_fee_won": null,
-        "total_fee_won": null,
-        "peak_mid_kw": null,
-        "peak_max_kw": null,
-        "unit_price_won_per_kwh": 158.98,
-        "period": "2026.3.1~3.31 (추정)"
+        "usage_fee_won": 7067184371,
+        "base_fee_won": 528538111,
+        "total_fee_won": 9398731230,
+        "peak_mid_kw": 92872,
+        "peak_max_kw": 76115,
+        "unit_price_won_per_kwh": 161.19,
+        "period": "⊙ 적용일 : 2026.3.1 ~ 3.31"
       }
     },
     {
       "month": "2026-04",
-      "source": "image_estimate",
-      "file_name": "screenshot",
+      "source": "file",
+      "file_name": "전력월보_2026-04.xlsx",
       "processes": {
         "OR": {
-          "usage_kwh": 1689755,
+          "usage_kwh": 1689755.0,
           "unit_kwh_t": 3.35
         },
         "RM": {
-          "usage_kwh": 12903349,
+          "usage_kwh": 12903349.0,
           "unit_kwh_t": 26.7
         },
         "COM": {
-          "usage_kwh": 1295461,
+          "usage_kwh": 1295461.0,
           "unit_kwh_t": 2.68
         },
         "KL": {
-          "usage_kwh": 15018837,
+          "usage_kwh": 15018837.0,
           "unit_kwh_t": 31.08
         },
         "CM": {
-          "usage_kwh": 19316568,
+          "usage_kwh": 19316568.0,
           "unit_kwh_t": 39.77
         }
       },
       "usage_subtotal": {
-        "usage_kwh": 50617729,
+        "usage_kwh": 50617729.0,
         "unit_kwh_t": 104.35
       },
       "total": {
-        "usage_kwh": 52001234,
+        "usage_kwh": 52001234.0,
         "unit_kwh_t": 107.2
       },
       "rate": {
-        "usage_fee_won": null,
-        "base_fee_won": null,
-        "total_fee_won": null,
-        "peak_mid_kw": null,
-        "peak_max_kw": null,
-        "unit_price_won_per_kwh": 162.26,
-        "period": "2026.4.1~4.30 (추정)"
+        "usage_fee_won": 6926156848,
+        "base_fee_won": 750393680,
+        "total_fee_won": 9476851710,
+        "peak_mid_kw": 90898,
+        "peak_max_kw": 62944,
+        "unit_price_won_per_kwh": 165.09,
+        "period": "⊙ 적용일 : 2026.4.1 ~ 4.30"
       }
     },
     {
       "month": "2026-05",
-      "source": "image_estimate",
-      "file_name": "screenshot",
+      "source": "file",
+      "file_name": "전력월보_2026-05.xlsx",
       "processes": {
         "OR": {
-          "usage_kwh": 1612624,
+          "usage_kwh": 1612624.0,
           "unit_kwh_t": 3.48
         },
         "RM": {
-          "usage_kwh": 12118088,
+          "usage_kwh": 12118088.0,
           "unit_kwh_t": 25.75
         },
         "COM": {
-          "usage_kwh": 1377848,
+          "usage_kwh": 1377848.0,
           "unit_kwh_t": 2.86
         },
         "KL": {
-          "usage_kwh": 15608910,
+          "usage_kwh": 15608910.0,
           "unit_kwh_t": 32.42
         },
         "CM": {
-          "usage_kwh": 16876171,
+          "usage_kwh": 16876171.0,
           "unit_kwh_t": 37.38
         }
       },
       "usage_subtotal": {
-        "usage_kwh": 47972421,
+        "usage_kwh": 47972421.0,
         "unit_kwh_t": 102.63
       },
       "total": {
-        "usage_kwh": 49428052,
+        "usage_kwh": 49428052.0,
         "unit_kwh_t": 105.75
       },
       "rate": {
-        "usage_fee_won": null,
-        "base_fee_won": null,
-        "total_fee_won": null,
-        "peak_mid_kw": null,
-        "peak_max_kw": null,
-        "unit_price_won_per_kwh": 160.65,
-        "period": "2026.5.1~5.31 (추정)"
+        "usage_fee_won": 6435164068,
+        "base_fee_won": 750079348,
+        "total_fee_won": 8828410580,
+        "peak_mid_kw": 90272,
+        "peak_max_kw": 65677,
+        "unit_price_won_per_kwh": 163.68,
+        "period": "⊙ 적용일 : 2026.5.1 ~ 5.31"
       }
     },
     {
