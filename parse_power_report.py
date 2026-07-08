@@ -29,34 +29,60 @@ RATE_COORDS = {
     "period": "B3",
 }
 
+ROW_MAP = {
+    "OR":  13,
+    "RM":  19,
+    "COM": 24,
+    "KL":  37,
+    "CM":  44,
+    "usage_subtotal": 48,
+    "total": 54,
+}
+
+def find_total_col(ws, header_row=5, search_row=6):
+    """헤더 행에서 '계' 라벨이 있는 열을 찾아 (사용량열, 원단위열) 컬럼 인덱스를 반환."""
+    from openpyxl.utils import get_column_letter
+    for col in range(1, 60):
+        v = ws.cell(row=header_row, column=col).value
+        if v is not None and str(v).strip() == "계":
+            # 다음 non-empty 라벨 열 전까지가 이 '계' 블록. 보통 usage_col=col, unit_col=col+1
+            usage_col = col
+            unit_col = col + 1
+            return usage_col, unit_col
+    raise ValueError("헤더 행에서 '계' 열을 찾을 수 없습니다.")
+
 def parse_file(path: Path):
     wb = load_workbook(path, data_only=True)
-    ws1 = wb["전력월보"]
-    ws2 = wb["전력요금계산서"]
+    sheet_names = wb.sheetnames
+    ws1 = wb[sheet_names[0]]
+    ws2 = wb[sheet_names[1]] if len(sheet_names) > 1 else None
 
     m = re.search(r"(\d{4})[-_](\d{2})", path.stem)
     if not m:
         raise ValueError(f"파일명에서 연-월을 찾을 수 없습니다: {path.name} (예: 전력월보_2026-06.xlsx)")
     year, month = m.group(1), m.group(2)
 
+    usage_col, unit_col = find_total_col(ws1)
+
     processes = {}
-    for key, (usage_cell, unit_cell) in COORDS.items():
-        usage = ws1[usage_cell].value
-        unit = ws1[unit_cell].value
+    for key, r in ROW_MAP.items():
+        usage = ws1.cell(row=r, column=usage_col).value
+        unit = ws1.cell(row=r, column=unit_col).value
         processes[key] = {
-            "usage_kwh": round(usage, 0) if usage is not None else None,
-            "unit_kwh_t": round(unit, 2) if unit is not None else None,
+            "usage_kwh": round(usage, 0) if isinstance(usage, (int, float)) else None,
+            "unit_kwh_t": round(unit, 2) if isinstance(unit, (int, float)) else None,
         }
 
     rate = {}
-    for key, cell in RATE_COORDS.items():
-        v = ws2[cell].value
-        if key == "period":
-            rate[key] = v
-        elif isinstance(v, (int, float)):
-            rate[key] = round(v, 2)
-        else:
-            rate[key] = v
+    if ws2 is not None:
+        for key, cell in RATE_COORDS.items():
+            v = ws2[cell].value
+            if key == "period":
+                rate[key] = v
+            elif isinstance(v, (int, float)):
+                rate[key] = round(v, 2)
+            else:
+                rate[key] = v
 
     return {
         "month": f"{year}-{month}",
@@ -87,6 +113,11 @@ def main():
         data = json.loads(data_path.read_text(encoding="utf-8"))
     else:
         data = {"months": []}
+
+    # 기존에 실무자가 남긴 note(수기 메모)는 재파싱해도 보존
+    existing = next((m for m in data["months"] if m["month"] == entry["month"]), None)
+    if existing and existing.get("note"):
+        entry["note"] = existing["note"]
 
     data["months"] = [m for m in data["months"] if m["month"] != entry["month"]]
     data["months"].append(entry)
