@@ -26,19 +26,25 @@
   header .updated{font-size:12px; color:var(--muted); text-align:right;}
   main{padding:24px 32px 60px; max-width:1180px; margin:0 auto;}
   .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:28px;}
-  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px; position:relative;}
   .kpi .label{font-size:12px; color:var(--muted); margin-bottom:6px;}
   .kpi .value{font-size:24px; font-weight:700;}
   .kpi .delta{font-size:12px; margin-top:4px;}
   .delta.up{color:var(--warn);} .delta.down{color:var(--ok);}
-  #insightBanner{margin:-10px 0 24px;}
-  .insight-card{background:linear-gradient(135deg,#2a2118,#1c2228); border:1px solid #4a3a22; border-left:3px solid var(--accent); border-radius:10px; padding:14px 18px; font-size:13px; display:flex; gap:10px; align-items:flex-start;}
+  #insightBanner{margin:-10px 0 12px;}
+  #integrityBanner{margin:0 0 24px;}
+  .insight-card{background:linear-gradient(135deg,#2a2118,#1c2228); border:1px solid #4a3a22; border-left:3px solid var(--accent); border-radius:10px; padding:14px 18px; font-size:13px; display:flex; gap:10px; align-items:flex-start; margin-bottom:10px;}
   .insight-card .icon{font-size:16px;}
   .insight-card .body b{color:var(--accent);}
+  .warn-card{background:linear-gradient(135deg,#2a1818,#1c2228); border:1px solid #5a2a2a; border-left:3px solid var(--warn); border-radius:10px; padding:14px 18px; font-size:13px; display:flex; gap:10px; align-items:flex-start; margin-bottom:10px;}
+  .warn-card .icon{font-size:16px;}
+  .warn-card .body b{color:var(--warn);}
+  .warn-card ul{margin:6px 0 0; padding-left:18px;}
   .note-box{margin-top:6px; font-size:12px; color:var(--muted); background:#20262d; border-left:2px solid var(--accent2); padding:6px 10px; border-radius:4px;}
   .note-box b{color:var(--accent2);}
   section{margin-bottom:32px;}
   section h2{font-size:15px; font-weight:700; margin:0 0 12px; color:var(--text); border-left:3px solid var(--accent); padding-left:10px;}
+  section h2 .h2sub{font-size:11px; font-weight:400; color:var(--muted); margin-left:8px;}
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
   @media(max-width:820px){.grid2{grid-template-columns:1fr;}}
   .card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px;}
@@ -51,17 +57,49 @@
   .badge{display:inline-block; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle;}
   .badge.est{background:#3a3020; color:#d9a24a;}
   .badge.file{background:#1f3a2c; color:#5fa876;}
+  .badge.crit{background:#4a1f1f; color:#e08787;}
+  .badge.warnb{background:#3a3020; color:#d9a24a;}
+  .badge.ok{background:#1f3a2c; color:#5fa876;}
+  .badge.progress{background:#1f2c3a; color:#7fb0d9;}
+  td.flag-crit{color:#e08787; font-weight:700;}
+  td.flag-warn{color:#d9a24a; font-weight:700;}
   footer{padding:20px 32px; color:var(--muted); font-size:12px; border-top:1px solid var(--line);}
   .legend{display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--muted); margin-bottom:8px;}
   .legend span{display:inline-flex; align-items:center; gap:6px;}
   .dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
+
+  /* 전월 대비 변동요인 카드 */
+  .variance-item{display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--line);}
+  .variance-item:last-child{border-bottom:none;}
+  .variance-label{width:130px; font-size:13px; flex-shrink:0;}
+  .variance-label .sub{display:block; font-size:11px; color:var(--muted); margin-top:2px;}
+  .variance-bar-track{flex:1; height:8px; background:#2b333b; border-radius:4px; overflow:hidden;}
+  .variance-bar-fill{height:100%; border-radius:4px;}
+  .variance-pct{width:90px; text-align:right; font-size:13px; font-weight:700; flex-shrink:0;}
+
+  /* 일보 연동(정합성) 카드 */
+  .recon-card{border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:10px; font-size:13px;}
+  .recon-card:last-child{margin-bottom:0;}
+  .recon-card .recon-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+  .recon-card .recon-head b{font-size:13px;}
+  .recon-mini{width:100%; font-size:12px; border-collapse:collapse; margin-top:8px;}
+  .recon-mini th,.recon-mini td{padding:5px 8px; text-align:right; border-bottom:1px solid var(--line);}
+  .recon-mini th:first-child,.recon-mini td:first-child{text-align:left; color:var(--muted);}
+  .muted-note{color:var(--muted); font-size:12px;}
+
+  /* 설비별 드릴다운 */
+  .btn-link{background:none; border:1px solid var(--line); color:var(--accent2); font-size:11px; padding:4px 10px; border-radius:6px; cursor:pointer; margin-left:8px;}
+  .btn-link:hover{border-color:var(--accent2);}
+  .drilldown-panel{display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);}
+  .drilldown-panel.open{display:block;}
+  .drilldown-panel h3{font-size:13px; margin:0 0 8px; color:var(--accent2);}
 </style>
 </head>
 <body>
 <header>
   <div>
     <h1>단양공장 전력사용량 대시보드</h1>
-    <div class="sub">Sungshin Cement · Danyang Plant · Power Usage Monitor</div>
+    <div class="sub">Sungshin Cement · Danyang Plant · Power Usage Monitor (전력월보)</div>
   </div>
   <div class="updated" id="updatedAt">데이터 로딩 중...</div>
 </header>
@@ -69,6 +107,7 @@
 <main>
   <div class="kpi-row" id="kpiRow"></div>
   <div id="insightBanner"></div>
+  <div id="integrityBanner"></div>
 
   <section>
     <h2>월별 원단위 추이 (kWh/t)</h2>
@@ -104,6 +143,20 @@
     </div>
   </section>
 
+  <section id="varianceSection" style="display:none">
+    <h2>이번 달 변동요인 <span class="h2sub">전월 대비 공정별 원단위 증감</span></h2>
+    <div class="card">
+      <div id="varianceList"></div>
+      <div id="drilldownToggleWrap"></div>
+      <div class="drilldown-panel" id="drilldownPanel"></div>
+    </div>
+  </section>
+
+  <section id="reconSection" style="display:none">
+    <h2>일보 연동 현황 <span class="h2sub">전력일보 대시보드와 데이터 정합성 확인</span></h2>
+    <div id="reconCards"></div>
+  </section>
+
   <section>
     <h2>월별 상세 데이터</h2>
     <div class="card" style="overflow-x:auto;">
@@ -119,16 +172,235 @@
 <script>
 const PROC_LABELS = {OR:"기준 O/R", RM:"R/M(원료분쇄)", COM:"COM(석탄분쇄)", KL:"K/L(소성)", CM:"C/M(시멘트분쇄)"};
 const PROC_COLORS = {OR:"#8a95a1", RM:"#e08a3c", COM:"#c9564a", KL:"#4c8daa", CM:"#5fa876"};
+const CORE_PROCESS_KEYS = ['RM','COM','KL','CM']; // 기준 O/R은 절대값이 작아 %변동이 왜곡되므로 제외
+const ANOMALY_PCT = 15; // 원단위 전월대비 급변동 판정 임계값(%)
+const RECON_MISMATCH_PCT = 3; // 일보 합계 vs 월보 값 불일치 판정 임계값(%)
+
+// 전력일보(일 단위) 대시보드 — 공정 코드 매핑 및 원본 데이터 주소
+const DAILY_GROUP_MAP = {OR:'QR', RM:'R', COM:'Co', KL:'K', CM:'C'};
+const DAILY_DATA_URL = 'https://raw.githubusercontent.com/mr1kwg-wang1/daily-power-dashboard/main/daily_data.json';
+
+let MONTHS_DATA = [];
 
 fetch('data.json?_=' + Date.now())
   .then(r => r.json())
-  .then(data => render(data.months))
+  .then(data => { MONTHS_DATA = data.months; render(data.months); })
   .catch(err => {
     document.getElementById('updatedAt').textContent = '데이터를 불러오지 못했습니다: ' + err;
   });
 
 function fmt(n, d=0){ return n==null ? '-' : Number(n).toLocaleString('ko-KR', {maximumFractionDigits:d, minimumFractionDigits:d}); }
 function monthLabel(m){ const [y,mo]=m.split('-'); return `${parseInt(mo)}월`; }
+
+// ---- ① 데이터 무결성 점검 ----
+// 각 월의 핵심 공정에 대해 (a) 생산량 미기재로 원단위 계산 불가 (b) 전월대비 급변동 을 감지
+function computeAnomalies(months){
+  const perMonth = {}; // month -> [{key, type, pct, msg}]
+  months.forEach((m, idx)=>{
+    const prev = idx>0 ? months[idx-1] : null;
+    const flags = [];
+    CORE_PROCESS_KEYS.forEach(k=>{
+      const cur = m.processes[k];
+      if(!cur) return;
+      if(cur.usage_kwh != null && cur.usage_kwh > 0 && (cur.unit_kwh_t == null || cur.unit_kwh_t === 0)){
+        flags.push({key:k, type:'crit', msg:`${PROC_LABELS[k]} 생산량 미기재 추정 — 사용량(${fmt(cur.usage_kwh)}kWh)은 정상 발생했으나 원단위 계산 불가`});
+        return;
+      }
+      const pv = prev?.processes[k];
+      if(cur.unit_kwh_t != null && pv?.unit_kwh_t != null && pv.unit_kwh_t !== 0){
+        const pct = (cur.unit_kwh_t - pv.unit_kwh_t) / pv.unit_kwh_t * 100;
+        if(Math.abs(pct) >= ANOMALY_PCT){
+          flags.push({key:k, type:'warn', pct, msg:`${PROC_LABELS[k]} 원단위 전월대비 ${pct>0?'상승':'하락'} ${Math.abs(pct).toFixed(1)}% (임계값 ${ANOMALY_PCT}% 초과)`});
+        }
+      }
+    });
+    perMonth[m.month] = flags;
+  });
+  return perMonth;
+}
+
+function renderIntegrityBanner(months, anomalyMap){
+  const el = document.getElementById('integrityBanner');
+  const last = months[months.length-1];
+  const lastFlags = anomalyMap[last.month] || [];
+  if(lastFlags.length === 0){ el.innerHTML=''; return; }
+  const crit = lastFlags.filter(f=>f.type==='crit');
+  const warn = lastFlags.filter(f=>f.type==='warn');
+  let html = `<div class="warn-card"><span class="icon">⚠️</span><div class="body">
+    <b>${last.month} 데이터 확인 필요</b>
+    <ul>${lastFlags.map(f=>`<li>${f.msg}</li>`).join('')}</ul>
+  </div></div>`;
+  el.innerHTML = html;
+}
+
+// ---- ② 전월 대비 변동요인 카드 ----
+function renderVarianceCard(months){
+  const section = document.getElementById('varianceSection');
+  if(months.length < 2){ section.style.display='none'; return; }
+  section.style.display='';
+  const last = months[months.length-1];
+  const prev = months[months.length-2];
+
+  const items = CORE_PROCESS_KEYS.map(k=>{
+    const cur = last.processes[k], pv = prev.processes[k];
+    if(!cur || !pv || cur.unit_kwh_t==null || pv.unit_kwh_t==null || pv.unit_kwh_t===0) return null;
+    const pct = (cur.unit_kwh_t - pv.unit_kwh_t) / pv.unit_kwh_t * 100;
+    return {key:k, pct, curU:cur.unit_kwh_t, pvU:pv.unit_kwh_t, curUsage:cur.usage_kwh, pvUsage:pv.usage_kwh};
+  }).filter(Boolean).sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+
+  const maxAbs = Math.max(1, ...items.map(i=>Math.abs(i.pct)));
+  const list = document.getElementById('varianceList');
+  list.innerHTML = items.map(i=>{
+    const isUp = i.pct > 0;
+    const cls = isUp ? 'up' : 'down';
+    const color = isUp ? 'var(--warn)' : 'var(--ok)';
+    const width = Math.min(100, Math.abs(i.pct)/maxAbs*100);
+    return `<div class="variance-item">
+      <div class="variance-label">${PROC_LABELS[i.key]}<span class="sub">${fmt(i.pvU,2)} → ${fmt(i.curU,2)} kWh/t</span></div>
+      <div class="variance-bar-track"><div class="variance-bar-fill" style="width:${width}%; background:${color}"></div></div>
+      <div class="variance-pct delta ${cls}">${isUp?'▲':'▼'} ${fmt(Math.abs(i.pct),1)}%</div>
+    </div>`;
+  }).join('');
+
+  // 드릴다운 버튼: 가장 변동폭이 큰 공정을 기본 대상으로 노출 (일보 데이터 로드 후 활성화)
+  const wrap = document.getElementById('drilldownToggleWrap');
+  if(items.length){
+    wrap.innerHTML = `<div style="margin-top:10px;"><button class="btn-link" id="drilldownBtn" disabled>설비별 상세 보기 (일보 연동 대기중...)</button></div>`;
+  }
+  window.__topVarianceKey = items[0]?.key;
+}
+
+// ---- ③ 이상 달 드릴다운 (일보 설비별 데이터 활용) ----
+async function loadDailyData(){
+  try{
+    const r = await fetch(DAILY_DATA_URL + '?_=' + Date.now());
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const json = await r.json();
+    return json.days || [];
+  }catch(err){
+    console.warn('일보 데이터 로드 실패:', err);
+    return null;
+  }
+}
+
+function aggregateDailyByMonth(days){
+  // { 'YYYY-MM': { groups: {QR:{usage,prod,equip:{설비명:{usage,prod}}}, ...}, dayCount, lastDate } }
+  const byMonth = {};
+  days.forEach(day=>{
+    const mk = day.date.slice(0,7);
+    if(!byMonth[mk]) byMonth[mk] = {groups:{}, dayCount:0, lastDate:day.date};
+    const bucket = byMonth[mk];
+    bucket.dayCount += 1;
+    if(day.date > bucket.lastDate) bucket.lastDate = day.date;
+    Object.entries(day.groups || {}).forEach(([code, g])=>{
+      if(!bucket.groups[code]) bucket.groups[code] = {usage:0, prod:0, equip:{}};
+      bucket.groups[code].usage += (g.사용량 || 0);
+      bucket.groups[code].prod += (g.생산량 || 0);
+      Object.entries(g.설비 || {}).forEach(([eqName, eq])=>{
+        if(!bucket.groups[code].equip[eqName]) bucket.groups[code].equip[eqName] = {usage:0, prod:0};
+        bucket.groups[code].equip[eqName].usage += (eq.사용량 || 0);
+        bucket.groups[code].equip[eqName].prod += (eq.생산량 || 0);
+      });
+    });
+  });
+  return byMonth;
+}
+
+function renderDrilldownPanel(monthKey, groupCode, byMonth){
+  const panel = document.getElementById('drilldownPanel');
+  const bucket = byMonth[monthKey];
+  const g = bucket?.groups[groupCode];
+  if(!g){
+    panel.innerHTML = `<p class="muted-note">${monthKey} 일보 데이터에서 해당 공정 상세를 찾을 수 없습니다.</p>`;
+    return;
+  }
+  const rows = Object.entries(g.equip).map(([name, v])=>{
+    const unit = v.prod ? (v.usage / v.prod) : null;
+    return `<tr><td>${name}</td><td>${fmt(v.usage)}</td><td>${fmt(v.prod)}</td><td>${unit!=null?fmt(unit,2):'-'}</td></tr>`;
+  }).join('');
+  panel.innerHTML = `<h3>${PROC_LABELS[Object.keys(DAILY_GROUP_MAP).find(k=>DAILY_GROUP_MAP[k]===groupCode)] || groupCode} · 설비별 상세 (${monthKey}, 일보 ${bucket.dayCount}일 누적, ~${bucket.lastDate})</h3>
+    <table class="recon-mini"><tr><th>설비</th><th>사용량(kWh)</th><th>생산량(t)</th><th>원단위(kWh/t)</th></tr>${rows}</table>`;
+}
+
+// ---- ④ 일보-월보 정합성 체크 ----
+function renderReconSection(months, byMonth){
+  const section = document.getElementById('reconSection');
+  const cardsEl = document.getElementById('reconCards');
+  const monthKeys = Object.keys(byMonth).sort();
+  if(monthKeys.length === 0){
+    section.style.display='none';
+    return;
+  }
+  section.style.display='';
+  let html = '';
+  monthKeys.forEach(mk=>{
+    const monthlyEntry = months.find(m=>m.month === mk);
+    const bucket = byMonth[mk];
+    if(monthlyEntry){
+      // 월보 확정 데이터가 있는 달 → 실제 정합성 비교
+      const rows = CORE_PROCESS_KEYS.map(k=>{
+        const dailyGroup = DAILY_GROUP_MAP[k];
+        const dailySum = bucket.groups[dailyGroup]?.usage;
+        const monthlyVal = monthlyEntry.processes[k]?.usage_kwh;
+        if(dailySum == null || monthlyVal == null) return `<tr><td>${PROC_LABELS[k]}</td><td colspan="3" class="muted-note">비교 불가</td></tr>`;
+        const diffPct = (dailySum - monthlyVal) / monthlyVal * 100;
+        const mismatch = Math.abs(diffPct) > RECON_MISMATCH_PCT;
+        return `<tr><td>${PROC_LABELS[k]}</td><td>${fmt(monthlyVal)}</td><td>${fmt(dailySum)}</td>
+          <td class="${mismatch?'flag-warn':''}">${diffPct>0?'+':''}${fmt(diffPct,1)}%${mismatch?' ⚠':''}</td></tr>`;
+      }).join('');
+      html += `<div class="recon-card">
+        <div class="recon-head"><b>${mk}</b><span class="badge ok">월보 확정 · 일보 ${bucket.dayCount}일 비교</span></div>
+        <table class="recon-mini"><tr><th>공정</th><th>월보(kWh)</th><th>일보 합계(kWh)</th><th>차이</th></tr>${rows}</table>
+      </div>`;
+    } else {
+      // 월보 미확정(진행중인 달) → 일보 기준 누적 미리보기
+      const total = Object.values(bucket.groups).reduce((s,g)=>s+g.usage,0);
+      const rows = CORE_PROCESS_KEYS.map(k=>{
+        const dailyGroup = DAILY_GROUP_MAP[k];
+        const dailySum = bucket.groups[dailyGroup]?.usage;
+        return `<tr><td>${PROC_LABELS[k]}</td><td>${dailySum!=null?fmt(dailySum):'-'}</td></tr>`;
+      }).join('');
+      html += `<div class="recon-card">
+        <div class="recon-head"><b>${mk} (진행중)</b><span class="badge progress">일보 기준 D+${bucket.dayCount}일 · ~${bucket.lastDate}</span></div>
+        <p class="muted-note">월보 미확정 — 아래는 전력일보 누적 기준 미리보기입니다. 총 누적 사용량 ${fmt(total)} kWh</p>
+        <table class="recon-mini"><tr><th>공정</th><th>일보 누적(kWh)</th></tr>${rows}</table>
+      </div>`;
+    }
+  });
+  cardsEl.innerHTML = html;
+}
+
+async function initDailyIntegration(months){
+  const days = await loadDailyData();
+  if(!days){
+    document.getElementById('reconSection').style.display='none';
+    const btn = document.getElementById('drilldownBtn');
+    if(btn){ btn.textContent = '설비별 상세 보기 (일보 데이터 연동 실패)'; btn.disabled = true; }
+    return;
+  }
+  const byMonth = aggregateDailyByMonth(days);
+  renderReconSection(months, byMonth);
+
+  const last = months[months.length-1];
+  const btn = document.getElementById('drilldownBtn');
+  const hasCurrentMonth = !!byMonth[last.month];
+  if(btn){
+    if(hasCurrentMonth && window.__topVarianceKey){
+      btn.disabled = false;
+      btn.textContent = '설비별 상세 보기 (일보 연동)';
+      btn.onclick = ()=>{
+        const panel = document.getElementById('drilldownPanel');
+        panel.classList.toggle('open');
+        if(panel.classList.contains('open')){
+          renderDrilldownPanel(last.month, DAILY_GROUP_MAP[window.__topVarianceKey], byMonth);
+        }
+      };
+    } else {
+      btn.textContent = '설비별 상세 보기 (해당 월 일보 데이터 없음)';
+      btn.disabled = true;
+    }
+  }
+}
 
 function render(months){
   months.sort((a,b)=>a.month.localeCompare(b.month));
@@ -138,11 +410,12 @@ function render(months){
   const last = months[months.length-1];
   const prev = months.length>1 ? months[months.length-2] : null;
 
+  const anomalyMap = computeAnomalies(months);
+
   // ---- 인사이트 자동 감지: 전월대비 변동폭이 가장 큰 공정 ----
   const insightEl = document.getElementById('insightBanner');
   if (prev) {
     let maxKey = null, maxPct = 0, maxDir = '';
-    const CORE_PROCESS_KEYS = ['RM','COM','KL','CM']; // 기준 O/R은 절대값이 작아 %변동이 왜곡되므로 제외
     CORE_PROCESS_KEYS.forEach(k=>{
       const cur = last.processes[k]?.unit_kwh_t;
       const pv = prev.processes[k]?.unit_kwh_t;
@@ -153,7 +426,7 @@ function render(months){
     });
     let html = '';
     if (maxKey) {
-      html += `<div class="insight-card"><span class="icon">⚠️</span><div class="body">
+      html += `<div class="insight-card"><span class="icon">💡</span><div class="body">
         <b>이번 달 주목 변화</b> — ${PROC_LABELS[maxKey]} 원단위가 전월대비 <b>${maxDir} ${Math.abs(maxPct).toFixed(1)}%</b>로 4개 공정 중 가장 크게 변동했습니다.
         (자동 감지: 원인은 데이터만으로 알 수 없어 아래 메모를 참고하세요)
       </div></div>`;
@@ -163,6 +436,8 @@ function render(months){
     }
     insightEl.innerHTML = html;
   }
+  renderIntegrityBanner(months, anomalyMap);
+  renderVarianceCard(months);
   // ---- 인사이트 로직 끝 ----
 
   const kpis = [
@@ -253,6 +528,11 @@ function render(months){
   const head = `<tr><th>월</th><th>총사용량(kWh)</th><th>전월대비</th><th>총원단위(kWh/t)</th><th>R/M</th><th>COM</th><th>K/L</th><th>C/M</th><th>전력단가(원/kWh)</th></tr>`;
   const rows = months.map((m, idx)=>{
     const badge = m.source==='file' ? '<span class="badge file">원본</span>' : '<span class="badge est">추정</span>';
+    const flags = anomalyMap[m.month] || [];
+    const flagByKey = {};
+    flags.forEach(f=>{ flagByKey[f.key] = f.type; });
+    const cellClass = (k)=> flagByKey[k]==='crit' ? 'flag-crit' : (flagByKey[k]==='warn' ? 'flag-warn' : '');
+    const cellTitle = (k)=> flags.find(f=>f.key===k)?.msg || '';
     let deltaCell = '<td>-</td>';
     if (idx > 0) {
       const prevUsage = months[idx-1].total.usage_kwh;
@@ -264,19 +544,23 @@ function render(months){
         deltaCell = `<td class="delta ${cls}" style="text-align:right">${arrow} ${fmt(Math.abs(pct),1)}%</td>`;
       }
     }
+    const rowIssueBadge = flags.length ? `<span class="badge ${flags.some(f=>f.type==='crit')?'crit':'warnb'}">${flags.length}건 확인필요</span>` : '';
     return `<tr>
-      <td style="text-align:left">${m.month}${badge}</td>
+      <td style="text-align:left">${m.month}${badge}${rowIssueBadge}</td>
       <td>${fmt(m.total.usage_kwh)}</td>
       ${deltaCell}
       <td>${fmt(m.total.unit_kwh_t,2)}</td>
-      <td>${fmt(m.processes.RM?.unit_kwh_t,2)}</td>
-      <td>${fmt(m.processes.COM?.unit_kwh_t,2)}</td>
-      <td>${fmt(m.processes.KL?.unit_kwh_t,2)}</td>
-      <td>${fmt(m.processes.CM?.unit_kwh_t,2)}</td>
+      <td class="${cellClass('RM')}" title="${cellTitle('RM')}">${fmt(m.processes.RM?.unit_kwh_t,2)}</td>
+      <td class="${cellClass('COM')}" title="${cellTitle('COM')}">${fmt(m.processes.COM?.unit_kwh_t,2)}</td>
+      <td class="${cellClass('KL')}" title="${cellTitle('KL')}">${fmt(m.processes.KL?.unit_kwh_t,2)}</td>
+      <td class="${cellClass('CM')}" title="${cellTitle('CM')}">${fmt(m.processes.CM?.unit_kwh_t,2)}</td>
       <td>${fmt(m.rate.unit_price_won_per_kwh,2)}</td>
     </tr>`;
   }).join('');
   table.innerHTML = head + rows;
+
+  // 일보 연동 데이터는 네트워크 호출이 필요하므로 화면 1차 렌더 이후 비동기로 진행
+  initDailyIntegration(months);
 }
 </script>
 </body>
